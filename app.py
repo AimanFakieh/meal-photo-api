@@ -28,5 +28,8 @@ def analyze_meal_photo():
         return jsonify({"error": "Failed to analyze image", "details": response.text}), 500
 
 # ✅ Start the Flask app (only if run directly)
-if __name__ == '__main__':
-    app.run(debug=True)
+import os
+
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 5000))  # Get the port from the environment
+    app.run(host="0.0.0.0", port=port, debug=True)  # Bind to all interfaces
