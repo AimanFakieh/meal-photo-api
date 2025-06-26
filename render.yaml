@@ -3,5 +3,5 @@ services:
     name: meal-photo-api
     env: python
     buildCommand: pip install -r requirements.txt
-    startCommand: python app.py
+    startCommand: python meal_photo_api.py
     pythonVersion: 3.10.13
