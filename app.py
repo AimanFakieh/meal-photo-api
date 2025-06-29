@@ -8,7 +8,7 @@ import traceback                                # For detailed error logging
 app = Flask(__name__)
 
 # ✅ Your Spoonacular API Key (keep this private!)
-SPOONACULAR_API_KEY = "b8520e1af2774f3799f4c09c5d1ee5d4"  # Replace this if you rotate the key
+SPOONACULAR_API_KEY = os.environ.get("SPOONACULAR_API_KEY")  # Safe and clean!
 
 # ✅ Health check route (to test if API is running)
 @app.route("/")
