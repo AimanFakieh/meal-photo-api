@@ -19,39 +19,37 @@ def home():
 @app.route('/analyze_meal_photo', methods=['POST'])
 def analyze_meal_photo():
     try:
-        # 🔍 Ensure image is provided
         if 'image' not in request.files:
             return jsonify({"error": "No image uploaded"}), 400
 
-        # 📸 Retrieve the uploaded image
         image_file = request.files['image']
 
-        # 🧠 Add browser-like headers to avoid 403 forbidden from Spoonacular
-        headers = {
-            "User-Agent": "Mozilla/5.0",
-            "Accept": "application/json"
-        }
+        # Save image temporarily (Spoonacular API sometimes fails with in-memory streams)
+        temp_path = f"/tmp/{image_file.filename}"
+        image_file.save(temp_path)
 
-        # 🔁 Send image to Spoonacular's API
-        response = requests.post(
-            f"https://api.spoonacular.com/food/images/analyze?apiKey={SPOONACULAR_API_KEY}",
-            files={"file": (image_file.filename, image_file, image_file.content_type)},
-            headers=headers
-        )
+        # Open it in binary mode
+        with open(temp_path, 'rb') as f:
+            files = {'file': (image_file.filename, f, image_file.content_type)}
+            headers = {
+                "Content-Type": "multipart/form-data"
+            }
+            response = requests.post(
+                f"https://api.spoonacular.com/food/images/analyze?apiKey={SPOONACULAR_API_KEY}",
+                files=files,
+                headers=headers
+            )
 
-        # ✅ Successful response
         if response.status_code == 200:
             return jsonify(response.json())
-
-        # ❌ Spoonacular error response
-        print("❌ Spoonacular error:", response.status_code, response.text)
-        return jsonify({
-            "error": "Failed to analyze image",
-            "details": response.text
-        }), 500
+        else:
+            print("❌ Spoonacular error:", response.status_code, response.text)
+            return jsonify({
+                "error": "Failed to analyze image",
+                "details": response.text
+            }), 500
 
     except Exception as e:
-        # ⚠️ Catch unexpected exceptions
         print("⚠️ Exception occurred:", e)
         print(traceback.format_exc())
         return jsonify({
